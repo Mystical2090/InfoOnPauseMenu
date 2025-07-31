@@ -1,16 +1,12 @@
+// src/main.cpp
 #include <Geode/Geode.hpp>
-#include <Geode/modify/PlayLayer.hpp>
-#include <Geode/modify/LevelInfoLayer.hpp>
+#include <Geode/modify/PauseLayer.hpp>
 
 using namespace geode::prelude;
 
-class $modify(MyPlayLayer, PlayLayer) {
-    struct Fields {
-        CCMenuItemSpriteExtra* m_levelInfoButton = nullptr;
-    };
-    
-    bool init(GJGameLevel* level, bool useReplay, bool dontCreateObjects) {
-        if (!PlayLayer::init(level, useReplay, dontCreateObjects)) {
+class $modify(MyPauseLayer, PauseLayer) {
+    bool init(bool p0) {
+        if (!PauseLayer::init(p0)) {
             return false;
         }
         
@@ -20,46 +16,30 @@ class $modify(MyPlayLayer, PlayLayer) {
     
     void addLevelInfoButton() {
         auto buttonSprite = CCSprite::createWithSpriteFrameName("GJ_infoIcon_001.png");
-        buttonSprite->setScale(0.8f);
+        
         auto levelInfoButton = CCMenuItemSpriteExtra::create(
             buttonSprite,
             this,
-            menu_selector(MyPlayLayer::onLevelInfoButton)
+            menu_selector(MyPauseLayer::onLevelInfoButton)
         );
-
-        m_fields->m_levelInfoButton = levelInfoButton;
-
-        auto winSize = CCDirector::sharedDirector()->getWinSize();
-        levelInfoButton->setPosition({50.0f, winSize.height - 50.0f});
-
-        auto menu = CCMenu::create();
-        menu->addChild(levelInfoButton);
-        menu->setPosition({0, 0});
-
-        this->addChild(menu, 6969);
+        
+        auto menu = this->getChildByID("left-button-menu");
+        if (menu) {
+            menu->addChild(levelInfoButton);
+            menu->updateLayout();
+        }
     }
     
     void onLevelInfoButton(CCObject* sender) {
-
-        auto level = this->m_level;
-        if (!level) return;
-      
-        auto infoLayer = LevelInfoLayer::create(level, false);
+        auto playLayer = PlayLayer::get();
+        if (!playLayer || !playLayer->m_level) return;
+        
+        auto infoLayer = LevelInfoLayer::create(playLayer->m_level, false);
         if (infoLayer) {
             auto scene = CCDirector::sharedDirector()->getRunningScene();
             scene->addChild(infoLayer, 1000);
+            
+            infoLayer->onInfo(nullptr);
         }
-    }
- 
-    void onQuit() {
-        PlayLayer::onQuit();
-    }
-};
-class $modify(MyLevelInfoLayer, LevelInfoLayer) {
-    bool init(GJGameLevel* level, bool challenge) {
-        if (!LevelInfoLayer::init(level, challenge)) {
-            return false;
-        }
-        return true;
     }
 };
