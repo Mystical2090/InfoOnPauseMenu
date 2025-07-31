@@ -1,17 +1,12 @@
-// src/main.cpp
 #include <Geode/Geode.hpp>
 #include <Geode/modify/PauseLayer.hpp>
 
 using namespace geode::prelude;
 
 class $modify(MyPauseLayer, PauseLayer) {
-    bool init(bool p0) {
-        if (!PauseLayer::init(p0)) {
-            return false;
-        }
-        
+    void customSetup() {
+        PauseLayer::customSetup();
         this->addLevelInfoButton();
-        return true;
     }
     
     void addLevelInfoButton() {
