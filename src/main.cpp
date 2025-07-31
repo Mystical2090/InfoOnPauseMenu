@@ -32,8 +32,7 @@ class $modify(MyPauseLayer, PauseLayer) {
         auto infoLayer = LevelInfoLayer::create(playLayer->m_level, false);
         if (infoLayer) {
             auto scene = CCDirector::sharedDirector()->getRunningScene();
-            scene->addChild(infoLayer, 1000);
-            
+            scene->addChild(infoLayer, 10000);
             infoLayer->onInfo(nullptr);
         }
     }
